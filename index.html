@@ -1107,15 +1107,33 @@
 </main>
 
 <!-- Connects your site to Supabase -->
-<script src="https://unpkg.com"></script>
+<!-- Connects your site to Supabase using a clean browser link -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
 <script>
-  // Your private database connections
+  // Changed the variable name to supabaseClient to prevent any browser clashing!
   const SUPABASE_URL = "https://anxgojqiehzdnesjbetp.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_fXs-g7zbzRYcGnJddZqZGw_weFQzQnE";
   
-  // Turn on the database connection
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Turn on the database connection using the global library
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   // Function to save your data
+  async function saveWorkout(titleText, notesText, timeText) {
+    const { data, error } = await supabaseClient
+      .from('workouts')
+      .insert([
+        { title: titleText, notes: notesText, time_of_day: timeText }
+      ]);
+
+    if (error) {
+      alert("Error saving workout: " + error.message);
+    } else {
+      alert("Workout saved successfully!");
+    }
+  }
+</script>
+
   async function saveWorkout(titleText, notesText, timeText) {
     const { data, error } = await supabase
       .from('workouts')
