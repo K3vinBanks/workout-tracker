@@ -1114,8 +1114,7 @@
   const SUPABASE_ANON_KEY = "sb_publishable_fXs-g7zbzRYcGnJddZqZGw_weFQzQnE";
   
   // Turn on the database connection
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   // Function to save your data
   async function saveWorkout(titleText, notesText, timeText) {
     const { data, error } = await supabase
