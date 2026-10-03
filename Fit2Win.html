@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Workout Progress Tracker</title>
+
+ 
+
+  <style>
+
+    :root {
+
+      --bg: #07121f;
+
+      --panel: #102238;
+
+      --panel-2: #142d49;
+
+      --line: #2c4e72;
+
+      --text: #edf5ff;
+
+      --muted: #a9bed5;
+
+      --blue: #61adff;
+
+      --blue-dark: #236fc0;
+
+      --green: #32c48d;
+
+      --red: #e76071;
+
+      --gold: #f0bd45;
+
+    }
+
+ 
+
+    * { box-sizing: border-box; }
+
+ 
+
+    body {
+
+      margin: 0;
+
+      background: linear-gradient(135deg, #06101c, #0a1c31 52%, #06101c);
+
+      color: var(--text);
+
+      font-family: Arial, Helvetica, sans-serif;
+
+    }
+
+ 
+
+    header {
+
+      position: sticky;
+
+      top: 0;
+
+      z-index: 10;
+
+      background: rgba(6, 16, 28, 0.95);
+
+      border-bottom: 1px solid var(--line);
+
+      backdrop-filter: blur(12px);
+
+      padding: 22px max(18px, calc((100vw - 1450px) / 2));
+
+    }
+
+ 
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 { margin-bottom: 6px; font-size: clamp(1.6rem, 3vw, 2.3rem); }
+
+    h2 { font-size: 1.2rem; margin-bottom: 15px; }
+
+    h3 { color: var(--blue); font-size: 1rem; margin-bottom: 10px; }
+
+ 
+
+    .subtext, .muted { color: var(--muted); }
+
+    .small { font-size: 0.82rem; }
+
+    .hidden { display: none !important; }
+
+ 
+
+    .container {
+
+      max-width: 1450px;
+
+      margin: auto;
+
+      padding: 24px 18px 60px;
+
+    }
+
+ 
+
+    .tabs, .toolbar {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      align-items: center;
+
+      gap: 9px;
+
+    }
+
+ 
+
+    .tabs { margin-bottom: 20px; }
+
+ 
+
+    button {
+
+      appearance: none;
+
+      border: 1px solid var(--line);
+
+      border-radius: 8px;
+
+      background: var(--panel);
+
+      color: var(--text);
+
+      cursor: pointer;
+
+      padding: 10px 13px;
+
+      font: inherit;
+
+      font-weight: 700;
+
+      transition: 0.18s ease;
+
+    }
+
+ 
+
+    button:hover {
+
+      border-color: var(--blue);
+
+      background: var(--panel-2);
+
+      transform: translateY(-1px);
+
+    }
+
+ 
+
+    button.active, button.primary {
+
+      background: var(--blue-dark);
+
+      border-color: var(--blue);
+
+    }
+
+ 
+
+    button.success {
+
+      background: #147151;
+
+      border-color: var(--green);
+
+    }
+
+ 
+
+    button.danger {
+
+      background: #7d2b39;
+
+      border-color: var(--red);
+
+    }
+
+ 
+
+    button.warning {
+
+      background: #735617;
+
+      border-color: var(--gold);
+
+    }
+
+ 
+
+    .panel {
+
+      background: rgba(16, 34, 56, 0.96);
+
+      border: 1px solid var(--line);
+
+      border-radius: 12px;
+
+      margin-bottom: 20px;
+
+      padding: 20px;
+
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.22);
+
+    }
+
+ 
+
+    .tab-content { display: none; }
+
+    .tab-content.active { display: block; }
+
+ 
+
+    .form-grid {
+
+      display: grid;
+
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+
+      gap: 14px;
+
+    }
+
+ 
+
+    .field {
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 7px;
+
+    }
+
+ 
+
+    .field label {
+
+      color: var(--muted);
+
+      font-size: 0.83rem;
+
+      font-weight: 700;
+
+    }
+
+ 
+
+    .col-12 { grid-column: span 12; }
+
+    .col-8 { grid-column: span 8; }
+
+    .col-6 { grid-column: span 6; }
+
+    .col-4 { grid-column: span 4; }
+
+    .col-3 { grid-column: span 3; }
+
+    .col-2 { grid-column: span 2; }
+
+ 
+
+    input, select, textarea {
+
+      width: 100%;
+
+      min-height: 42px;
+
+      padding: 10px 11px;
+
+      border: 1px solid var(--line);
+
+      border-radius: 8px;
+
+      background: #081728;
+
+      color: var(--text);
+
+      font: inherit;
+
+    }
+
+ 
+
+    textarea {
+
+      min-height: 85px;
+
+      resize: vertical;
+
+    }
+
+ 
+
+    input:focus, select:focus, textarea:focus {
+
+      outline: 2px solid rgba(97, 173, 255, 0.4);
+
+      border-color: var(--blue);
+
+    }
+
+ 
+
+    .toolbar { margin-top: 16px; }
+
+ 
+
+    .help {
+
+      margin: 10px 0 0;
+
+      color: var(--muted);
+
+      font-size: 0.84rem;
+
+    }
+
+ 
+
+    .exercise-note {
+
+      border-left: 3px solid var(--blue);
+
+      border-radius: 0 8px 8px 0;
+
+      background: #0a1b30;
+
+      color: #d2e0f2;
+
+      padding: 10px 12px;
+
+      font-size: 0.86rem;
+
+    }
+
+ 
+
+    .badge {
+
+      display: inline-block;
+
+      background: #12304e;
+
+      border: 1px solid var(--line);
+
+      border-radius: 999px;
+
+      color: #d3e4fb;
+
+      font-size: 0.74rem;
+
+      padding: 3px 7px;
+
+      white-space: nowrap;
+
+    }
+
+ 
+
+    .table-wrap {
+
+      overflow-x: auto;
+
+      border: 1px solid var(--line);
+
+      border-radius: 10px;
+
+    }
+
+ 
+
+    table {
+
+      width: 100%;
+
+      min-width: 1080px;
+
+      border-collapse: collapse;
+
+    }
+
+ 
+
+    th, td {
+
+      padding: 10px;
+
+      border-bottom: 1px solid rgba(44, 78, 114, 0.72);
+
+      text-align: left;
+
+      vertical-align: top;
+
+      font-size: 0.86rem;
+
+    }
+
+ 
+
+    th {
+
+      position: sticky;
+
+      top: 0;
+
+      color: #d6e6fa;
+
+      background: #0a192c;
+
+      white-space: nowrap;
+
+    }
+
+ 
+
+    tr:last-child td { border-bottom: none; }
+
+ 
+
+    .summary-grid {
+
+      display: grid;
+
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+
+      gap: 14px;
+
+      margin-bottom: 20px;
+
+    }
+
+ 
+
+    .stat {
+
+      padding: 16px;
+
+      border: 1px solid var(--line);
+
+      border-radius: 10px;
+
+      background: linear-gradient(150deg, var(--panel-2), #0b1b2f);
+
+    }
+
+ 
+
+    .stat-label {
+
+      display: block;
+
+      color: var(--muted);
+
+      font-size: 0.76rem;
+
+      font-weight: 700;
+
+      text-transform: uppercase;
+
+    }
+
+ 
+
+    .stat-value {
+
+      display: block;
+
+      margin-top: 5px;
+
+      font-size: 1.55rem;
+
+      font-weight: 800;
+
+    }
+
+ 
+
+    .split-heading {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: flex-start;
+
+      flex-wrap: wrap;
+
+      gap: 14px;
+
+    }
+
+ 
+
+    .empty {
+
+      color: var(--muted);
+
+      text-align: center;
+
+      padding: 24px;
+
+    }
+
+ 
+
+    .custom-box {
+
+      margin-top: 14px;
+
+      padding: 14px;
+
+      background: #0a1c31;
+
+      border: 1px dashed var(--blue);
+
+      border-radius: 10px;
+
+    }
+
+ 
+
+    @media (max-width: 1050px) {
+
+      .summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+      .col-8, .col-6, .col-4, .col-3, .col-2 { grid-column: span 12; }
+
+    }
+
+ 
+
+    @media (max-width: 650px) {
+
+      header { position: static; }
+
+      .summary-grid { grid-template-columns: 1fr; }
+
+      .container { padding: 16px 10px 42px; }
+
+      .panel { padding: 14px; }
+
+      button { width: 100%; }
+
+    }
+
+ 
+
+    @media print {
+
+      body { color: black; background: white; }
+
+      header, .tabs, .no-print, #logTab, #historyTab, #equipmentTab { display: none !important; }
+
+      #reportTab { display: block !important; }
+
+      .panel, .stat {
+
+        color: black;
+
+        background: white;
+
+        border: 1px solid #888;
+
+        box-shadow: none;
+
+      }
+
+      .subtext, .muted { color: #333 !important; }
+
+      th { position: static; color: black; background: #eee; }
+
+      td { color: black; }
+
+      .table-wrap { overflow: visible; }
+
+    }
+
+  </style>
+
+</head>
+
+ 
+
+<body>
+
+  <header>
+
+    <h1>Workout Progress Tracker</h1>
+
+    <p class="subtext">
+
+      Track gym sessions, outdoor activity, equipment, exercise performance, distance traveled, and workout progress.
+
+    </p>
+
+  </header>
+
+ 
+
+  <main class="container">
+
+    <nav class="tabs no-print">
+
+      <button class="tab-button active" data-target="logTab">Workout Log</button>
+
+      <button class="tab-button" data-target="historyTab">Workout History</button>
+
+      <button class="tab-button" data-target="reportTab">Progress Report</button>
+
+      <button class="tab-button" data-target="equipmentTab">Equipment Database</button>
+
+    </nav>
+
+ 
+
+    <!-- WORKOUT LOG -->
+
+    <section id="logTab" class="tab-content active">
+
+      <div class="panel">
+
+        <h2>Workout Details</h2>
+
+ 
+
+        <div class="form-grid">
+
+          <div class="field col-4">
+
+            <label for="workoutDate">Date</label>
+
+            <input id="workoutDate" type="date" />
+
+          </div>
+
+ 
+
+          <div class="field col-4">
+
+            <label for="timeOfDay">Time of Day</label>
+
+            <select id="timeOfDay">
+
+              <option value="Morning">Morning</option>
+
+              <option value="Midday">Midday</option>
+
+              <option value="Afternoon">Afternoon</option>
+
+              <option value="Evening">Evening</option>
+
+              <option value="Custom">Custom</option>
+
+            </select>
+
+          </div>
+
+ 
+
+          <div id="customTimeWrap" class="field col-4 hidden">
+
+            <label for="customTime">Custom Time</label>
+
+            <input id="customTime" type="time" />
+
+          </div>
+
+ 
+
+          <div class="field col-6">
+
+            <label for="workoutTitle">Workout Title</label>
+
+            <input id="workoutTitle" type="text" placeholder="Example: Trail Run, Upper Body Strength, Beach Conditioning" />
+
+          </div>
+
+ 
+
+          <div class="field col-6">
+
+            <label for="gymProfile">Gym Profile</label>
+
+            <select id="gymProfile"></select>
+
+          </div>
+
+ 
+
+          <div class="field col-12">
+
+            <label for="workoutNotes">Workout Notes</label>
+
+            <textarea id="workoutNotes" placeholder="Optional: weather, terrain, recovery, readiness, modifications, or other session notes."></textarea>
+
+          </div>
+
+        </div>
+
+ 
+
+        <p class="help">
+
+          Outdoor profiles include <strong>Home, Trail, Mountain, Riverside,</strong> and <strong>Beach</strong>.
+
+          Select the profile first so available equipment or terrain is available for exercise logging.
+
+        </p>
+
+      </div>
+
+ 
+
+      <div class="panel">
+
+        <h2>Add Exercise Entry</h2>
+
+ 
+
+        <div class="form-grid">
+
+          <div class="field col-4">
+
+            <label for="equipmentCategory">Equipment Category</label>
+
+            <select id="equipmentCategory"></select>
+
+          </div>
+
+ 
+
+          <div class="field col-8">
+
+            <label for="equipmentModel">Equipment Model / Apparatus / Terrain</label>
+
+            <select id="equipmentModel"></select>
+
+          </div>
+
+ 
+
+          <div class="field col-6">
+
+            <label for="exerciseSearch">Search Exercise</label>
+
+            <input id="exerciseSearch" type="text" placeholder="Search: walk, sprint, squat, row, bench, carry..." />
+
+          </div>
+
+ 
+
+          <div class="field col-6">
+
+            <label for="exercise">Exercise</label>
+
+            <select id="exercise"></select>
+
+          </div>
+
+ 
+
+          <div class="field col-12">
+
+            <div id="exerciseInfo" class="exercise-note">
+
+              Select an exercise to view its movement pattern and training category.
+
+            </div>
+
+          </div>
+
+ 
+
+          <div class="field col-2">
+
+            <label for="targetType">Target Type</label>
+
+            <select id="targetType">
+
+              <option value="Reps">Reps</option>
+
+              <option value="Distance">Distance</option>
+
+              <option value="Time">Time</option>
+
+              <option value="Calories">Calories</option>
+
+              <option value="Rounds">Rounds</option>
+
+              <option value="Other">Other</option>
+
+            </select>
+
+          </div>
+
+ 
+
+          <div class="field col-2">
+
+            <label for="targetValue">Target</label>
+
+            <input id="targetValue" type="text" placeholder="Example: 10" />
+
+          </div>
+
+ 
+
+          <div class="field col-2">
+
+            <label for="actualValue">Actual Performance</label>
+
+            <input id="actualValue" type="text" placeholder="Example: 10" />
+
+          </div>
+
+ 
+
+          <div class="field col-2">
+
+            <label for="distanceTraveled">Distance Traveled</label>
+
+            <input id="distanceTraveled" type="number" min="0" step="0.01" placeholder="Example: 2.50" />
+
+          </div>
+
+ 
+
+          <div class="field col-2">
+
+            <label for="distanceUnit">Distance Unit</label>
+
+            <select id="distanceUnit">
+
+              <option value="miles">Miles</option>
+
+              <option value="kilometers">Kilometers</option>
+
+              <option value="meters">Meters</option>
+
+              <option value="yards">Yards</option>
+
+              <option value="feet">Feet</option>
+
+            </select>
+
+          </div>
+
+ 
+
+          <div class="field col-2">
+
+            <label for="targetUnit">Target / Actual Unit</label>
+
+            <select id="targetUnit">
+
+              <option value="reps">Reps</option>
+
+              <option value="seconds">Seconds</option>
+
+              <option value="minutes">Minutes</option>
+
+              <option value="meters">Meters</option>
+
+              <option value="miles">Miles</option>
+
+              <option value="calories">Calories</option>
+
+              <option value="rounds">Rounds</option>
+
+              <option value="hold">Hold</option>
+
+              <option value="other">Other</option>
+
+            </select>
+
+          </div>
+
+ 
+
+          <div class="field col-3">
+
+            <label for="sets">Sets</label>
+
+            <input id="sets" type="number" min="1" value="1" />
+
+          </div>
+
+ 
+
+          <div class="field col-3">
+
+            <label for="restSeconds">Rest (Seconds)</label>
+
+            <input id="restSeconds" type="number" min="0" value="90" />
+
+          </div>
+
+ 
+
+          <div class="field col-3">
+
+            <label for="targetWeight">Target Weight / Resistance</label>
+
+            <input id="targetWeight" type="text" placeholder="Example: 95 or Bodyweight" />
+
+          </div>
+
+ 
+
+          <div class="field col-3">
+
+            <label for="actualWeight">Actual Weight / Resistance</label>
+
+            <input id="actualWeight" type="text" placeholder="Example: 100 or Bodyweight" />
+
+          </div>
+
+ 
+
+          <div class="field col-3">
+
+            <label for="weightUnit">Weight Unit</label>
+
+            <select id="weightUnit">
+
+              <option value="lb">lb</option>
+
+              <option value="kg">kg</option>
+
+              <option value="Bodyweight">Bodyweight</option>
+
+              <option value="Resistance Level">Resistance Level</option>
+
+              <option value="Other">Other</option>
+
+            </select>
+
+          </div>
+
+ 
+
+          <div class="field col-3">
+
+            <label for="rpe">RPE (1–10)</label>
+
+            <input id="rpe" type="number" min="1" max="10" placeholder="Optional" />
+
+          </div>
+
+ 
+
+          <div class="field col-12">
+
+            <label for="entryNotes">Exercise / Set Notes</label>
+
+            <textarea id="entryNotes" placeholder="Optional: incline, terrain, pace, weather, tempo, grip, form, equipment settings, or modifications."></textarea>
+
+          </div>
+
+        </div>
+
+ 
+
+        <div class="toolbar no-print">
+
+          <button id="addEntry" class="primary">Add Exercise Entry</button>
+
+          <button id="clearEntry">Clear Exercise Fields</button>
+
+        </div>
+
+ 
+
+        <div id="customEquipmentBox" class="custom-box hidden no-print">
+
+          <h3>Add Custom Equipment</h3>
+
+ 
+
+          <div class="form-grid">
+
+            <div class="field col-4">
+
+              <label for="customEquipmentCategory">Category</label>
+
+              <select id="customEquipmentCategory">
+
+                <option value="Cardio">Cardio</option>
+
+                <option value="Strength Machines">Strength Machines</option>
+
+                <option value="Plate-Loaded / Free Weights">Plate-Loaded / Free Weights</option>
+
+                <option value="Functional Training">Functional Training</option>
+
+                <option value="Outdoor Terrain">Outdoor Terrain</option>
+
+                <option value="Recovery / Mobility">Recovery / Mobility</option>
+
+                <option value="Other">Other</option>
+
+              </select>
+
+            </div>
+
+ 
+
+            <div class="field col-8">
+
+              <label for="customEquipmentName">Custom Equipment Name</label>
+
+              <input id="customEquipmentName" type="text" placeholder="Example: Garage Gym Cable Tower or Local Park Running Loop" />
+
+            </div>
+
+          </div>
+
+ 
+
+          <div class="toolbar">
+
+            <button id="saveCustomEquipment" class="success">Save to Selected Profile</button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+ 
+
+      <div class="panel">
+
+        <div class="split-heading">
+
+          <div>
+
+            <h2>Current Workout Entries</h2>
+
+            <p class="subtext">Use one entry per set, distance effort, timed interval, or exercise block.</p>
+
+          </div>
+
+ 
+
+          <div class="toolbar no-print">
+
+            <button id="saveWorkout" class="success">Save Workout</button>
+
+            <button id="clearWorkout" class="danger">Clear Current Workout</button>
+
+          </div>
+
+        </div>
+
+ 
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th>Date</th>
+
+                <th>Time of Day</th>
+
+                <th>Equipment / Terrain</th>
+
+                <th>Exercise</th>
+
+                <th>Target</th>
+
+                <th>Actual</th>
+
+                <th>Distance Traveled</th>
+
+          
+
+...
+
+[Message clipped]  View entire message
