@@ -1097,9 +1097,39 @@
                 <th>Actual</th>
 
                 <th>Distance Traveled</th>
+      </tr>
+    </thead>
+    <tbody id="history-table-body">
+      <!-- Workout logs will appear here dynamically -->
+    </tbody>
+  </table>
+</div>
+</main>
 
-          
+<!-- Connects your site to Supabase -->
+<<script src="https://jsdelivr.net"></script>
+<script>
+  // Your private database connections
+  const SUPABASE_URL = "https://anxgojqiehzdnesjbetp.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_fXs-g7zbzRYcGnJddZqZGw_weFQzQnE";
+  
+  // Turn on the database connection
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-...
+  // Function to save your data
+  async function saveWorkout(titleText, notesText, timeText) {
+    const { data, error } = await supabase
+      .from('workouts')
+      .insert([
+        { title: titleText, notes: notesText, time_of_day: timeText }
+      ]);
 
-[Message clipped]  View entire message
+    if (error) {
+      alert("Error saving workout: " + error.message);
+    } else {
+      alert("Workout saved successfully!");
+    }
+  }
+</script>
+</body>
+</html>
