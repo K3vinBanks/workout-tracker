@@ -1107,56 +1107,49 @@
 </main>
 
 <!-- Connects your site to Supabase -->
-<!-- Connects your site to Supabase -->
+<!-- Load the database file first -->
 <script src="https://unpkg.com"></script>
 
 <script>
-  // Setup your database connection strings
-  const SUPABASE_URL = "https://supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_fXs-g7zbzRYcGnJddZqZGw_weFQzQnE";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Setup your database connection strings securely
+  const DB_URL = "https://anxgojqiehzdnesjbetp.supabase.co";
+  const DB_KEY = "sb_publishable_fXs-g7zbzRYcGnJddZqZGw_weFQzQnE";
+  const supabaseClient = supabase.createClient(DB_URL, DB_KEY);
 
-  // 1. Function that sends data to Supabase
-  async function saveWorkout(titleText, notesText, timeText) {
-    const { data, error } = await supabaseClient
-      .from('workouts')
-      .insert([
-        { title: titleText, notes: notesText, time_of_day: timeText }
-      ]);
-
-    if (error) {
-      alert("Error saving workout: " + error.message);
-    } else {
-      alert("🎉 Workout saved successfully to your cloud database!");
-    }
-  }
-
-  // 2. Wire up the green "Save Workout" button automatically when the page loads
+  // Securely intercept your green "Save Workout" button without breaking anything else
   document.addEventListener("DOMContentLoaded", () => {
-    // Find the green Save Workout button on your screen
-    const saveButton = document.querySelector(".btn-success") || document.querySelector("button:contains('Save Workout')") || document.getElementById("save-workout");
+    // Find your green save button
+    const saveBtn = document.querySelector(".btn-success") || document.getElementById("save-workout");
     
-    if (saveButton) {
-      saveButton.addEventListener("click", function(event) {
-        event.preventDefault(); // Stop the page from reloading layout unexpectedly
-        
-        // Grab whatever text you typed into your boxes
-        const titleInput = document.querySelector('input[placeholder*="Trail Run"]') || document.querySelector('input');
-        const notesInput = document.querySelector('textarea[placeholder*="weather"]') || document.querySelector('textarea');
-        const profileInput = document.querySelector('select'); // Gym Profile dropdown
-        
-        const titleText = titleInput ? titleInput.value : "Unnamed Workout";
-        const notesText = notesInput ? notesInput.value : "";
-        const timeText = profileInput ? profileInput.value : "General";
+    if (saveBtn) {
+      saveBtn.addEventListener("click", async function(event) {
+        // Prevent default submit behaviors
+        event.preventDefault();
 
-        // Check if you forgot to type a title
-        if (!titleText.trim() || titleText.startsWith("Example:")) {
-          alert("Please type a Workout Title before saving!");
+        // Target the standard workout headers from your original layout
+        const titleEl = document.querySelector('input[placeholder*="Trail Run"]') || document.querySelector('#workout-title');
+        const notesEl = document.querySelector('textarea[placeholder*="weather"]') || document.querySelector('#workout-notes');
+        const timeEl = document.querySelector('select'); // Dropdown select box
+
+        const titleText = titleEl ? titleEl.value.trim() : "";
+        const notesText = notesEl ? notesEl.value.trim() : "";
+        const timeText = timeEl ? timeEl.value : "Morning";
+
+        if (!titleText || titleText.startsWith("Example:")) {
+          alert("Please input a Workout Title before clicking save!");
           return;
         }
 
-        // Run the cloud save function!
-        saveWorkout(titleText, notesText, timeText);
+        // Save data straight into your Supabase database table
+        const { data, error } = await supabaseClient
+          .from('workouts')
+          .insert([{ title: titleText, notes: notesText, time_of_day: timeText }]);
+
+        if (error) {
+          alert("Database Error: " + error.message);
+        } else {
+          alert("🎉 Workout saved successfully to your Supabase Cloud Database!");
+        }
       });
     }
   });
