@@ -1107,18 +1107,16 @@
 </main>
 
 <!-- Connects your site to Supabase -->
-<!-- Connects your site to Supabase using a clean browser link -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<!-- Connects your site to Supabase -->
+<script src="https://unpkg.com"></script>
 
 <script>
-  // Changed the variable name to supabaseClient to prevent any browser clashing!
-  const SUPABASE_URL = "https://anxgojqiehzdnesjbetp.supabase.co";
+  // Setup your database connection strings
+  const SUPABASE_URL = "https://supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_fXs-g7zbzRYcGnJddZqZGw_weFQzQnE";
-  
-  // Turn on the database connection using the global library
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Function to save your data
+  // 1. Function that sends data to Supabase
   async function saveWorkout(titleText, notesText, timeText) {
     const { data, error } = await supabaseClient
       .from('workouts')
@@ -1129,24 +1127,39 @@
     if (error) {
       alert("Error saving workout: " + error.message);
     } else {
-      alert("Workout saved successfully!");
+      alert("🎉 Workout saved successfully to your cloud database!");
     }
   }
-</script>
 
-  async function saveWorkout(titleText, notesText, timeText) {
-    const { data, error } = await supabase
-      .from('workouts')
-      .insert([
-        { title: titleText, notes: notesText, time_of_day: timeText }
-      ]);
+  // 2. Wire up the green "Save Workout" button automatically when the page loads
+  document.addEventListener("DOMContentLoaded", () => {
+    // Find the green Save Workout button on your screen
+    const saveButton = document.querySelector(".btn-success") || document.querySelector("button:contains('Save Workout')") || document.getElementById("save-workout");
+    
+    if (saveButton) {
+      saveButton.addEventListener("click", function(event) {
+        event.preventDefault(); // Stop the page from reloading layout unexpectedly
+        
+        // Grab whatever text you typed into your boxes
+        const titleInput = document.querySelector('input[placeholder*="Trail Run"]') || document.querySelector('input');
+        const notesInput = document.querySelector('textarea[placeholder*="weather"]') || document.querySelector('textarea');
+        const profileInput = document.querySelector('select'); // Gym Profile dropdown
+        
+        const titleText = titleInput ? titleInput.value : "Unnamed Workout";
+        const notesText = notesInput ? notesInput.value : "";
+        const timeText = profileInput ? profileInput.value : "General";
 
-    if (error) {
-      alert("Error saving workout: " + error.message);
-    } else {
-      alert("Workout saved successfully!");
+        // Check if you forgot to type a title
+        if (!titleText.trim() || titleText.startsWith("Example:")) {
+          alert("Please type a Workout Title before saving!");
+          return;
+        }
+
+        // Run the cloud save function!
+        saveWorkout(titleText, notesText, timeText);
+      });
     }
-  }
+  });
 </script>
 </body>
 </html>
